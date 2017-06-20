@@ -5,10 +5,12 @@
  */
 public class Student implements Runnable {
 
+    //to assign an ID to each student
     private int studentIndex;
-    private boolean calledPizza = false; // this is to check whether a student called the Pizza Guy or not
+    // this is to check whether a student called the Pizza Guy or not
+    private static boolean calledPizza = false;
 
-    //intialize student with a ThreadID
+    //initialize student with a ThreadID
     Student(int index) {
         this.studentIndex = index;
     }
@@ -20,33 +22,39 @@ public class Student implements Runnable {
             while (true) {
 
                 //grab lock to update and access the sliceCount variable
-                Variables.sleep.lock();
+                Variables.lock.lock();
 
-                //if the pizza is gone
+                //if the pizza is gone and no one has called yet
                 if (Variables.sliceCount == 0 && !calledPizza){
-                    //the first person to see that the pizza is missing will make thecall
+                    //the first person to see that the pizza is missing will make the call
                     System.out.println("Pizza Ordering call made by Student: " + this.studentIndex);
                     //make the call
                     Variables.wantPizza.release();
                     calledPizza = true;
-
                 }
-                else if (Variables.sliceCount == 0){
+
+                //if pizza is empty, but someone has already made a call (includes the person who made the call
+                if (Variables.sliceCount == 0){
+                    //Student will Go to sleep
                     Variables.sleepStudents.await();
                 }
 
                 //one slice picked by a student
                 else{
+                    //reduce slice count
                     Variables.sliceCount--;
                     calledPizza = false;
+                    //grab pizza slice
                     grabPizzaSlice();
+                    //eat and study pizza slice
                     eatPizzaAndStudy();
                 }
 
 
                 //let go of the lock and exit critical section
-                Variables.sleep.unlock();
+                Variables.lock.unlock();
 
+                //take some time and repeat
                 Thread.sleep(3000);
 
             }

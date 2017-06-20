@@ -19,8 +19,8 @@ class Variables {
 
 
 
-    static Lock sleep = new ReentrantLock(); //This lock will ensure Mutual Exclusion to
-    static Condition sleepStudents = sleep.newCondition(); //This is the conditional Variable that will put students to sleep
+    static Lock lock = new ReentrantLock(); //This lock will ensure Mutual Exclusion to
+    static Condition sleepStudents = lock.newCondition(); //This is the conditional Variable that will put students to lock
 
 }
 

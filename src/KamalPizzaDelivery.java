@@ -14,18 +14,22 @@ public class KamalPizzaDelivery implements Runnable {
                 Variables.wantPizza.acquire();
 
                 //Produce and deliver Pizza
-                deliever();
+                deliver();
 
                 //Grab lock and update the sliceCount variable
-                Variables.sleep.lock();
+                Variables.lock.lock();
+
+                //add s number of slices to Pizza
                 Variables.sliceCount = Variables.s;
 
 
                 wakeUpStudents();
+
                 //wake up the sleeping students
                 Variables.sleepStudents.signalAll();
 
-                Variables.sleep.unlock();
+                //release lock
+                Variables.lock.unlock();
 
             }
 
@@ -36,11 +40,13 @@ public class KamalPizzaDelivery implements Runnable {
 
     }
 
-    private void deliever() throws InterruptedException {
+    //Delivering Pizza
+    private void deliver() throws InterruptedException {
         System.out.println("---------Delivering Pizza----------");
         Thread.sleep(500);
     }
 
+    //waking up all students
     private void wakeUpStudents() {
         System.out.println("-----------------wake up all students----------------\n");
     }
