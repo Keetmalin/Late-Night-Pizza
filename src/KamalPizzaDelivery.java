@@ -17,14 +17,15 @@ public class KamalPizzaDelivery implements Runnable {
                 deliever();
 
                 //Grab lock and update the sliceCount variable
-                Variables.mutex.acquire();
+                Variables.sleep.lock();
                 Variables.sliceCount = Variables.s;
-                Variables.mutex.release();
+
 
                 wakeUpStudents();
                 //wake up the sleeping students
-                Variables.students.release(Variables.s);
+                Variables.sleepStudents.signalAll();
 
+                Variables.sleep.unlock();
 
             }
 

@@ -6,6 +6,7 @@
 public class Student implements Runnable {
 
     private int studentIndex;
+    private boolean calledPizza = false; // this is to check whether a student called the Pizza Guy or not
 
     //intialize student with a ThreadID
     Student(int index) {
@@ -15,40 +16,38 @@ public class Student implements Runnable {
     @Override
     public void run() {
         try {
-            Thread.sleep(2000);
 
             while (true) {
 
                 //grab lock to update and access the sliceCount variable
-                Variables.mutex.acquire();
+                Variables.sleep.lock();
 
                 //if the pizza is gone
-                if (Variables.sliceCount == 0 && !Variables.calledPizza){
+                if (Variables.sliceCount == 0 && !calledPizza){
                     //the first person to see that the pizza is missing will make thecall
                     System.out.println("Pizza Ordering call made by Student: " + this.studentIndex);
                     //make the call
                     Variables.wantPizza.release();
-                    Variables.calledPizza = true;
+                    calledPizza = true;
 
                 }
-                //let go of the lock and exit critical section
-                Variables.mutex.release();
+                else if (Variables.sliceCount == 0){
+                    Variables.sleepStudents.await();
+                }
 
-                //students approach the pizza, if no pizzas, go to sleep, else procees
-                Variables.students.acquire();
-                Variables.calledPizza = false;
-
-                //acquire lock so that students can eat one slice at a time and decrement sliceCount
-                Variables.mutex.acquire();
                 //one slice picked by a student
-                Variables.sliceCount--;
-                grabPizzaSlice();
+                else{
+                    Variables.sliceCount--;
+                    calledPizza = false;
+                    grabPizzaSlice();
+                    eatPizzaAndStudy();
+                }
 
-                eatPizzaAndStudy();
+
                 //let go of the lock and exit critical section
-                Variables.mutex.release();
+                Variables.sleep.unlock();
 
-
+                Thread.sleep(3000);
 
             }
 
